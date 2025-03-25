@@ -1,17 +1,29 @@
-# Site settings
+# Site basic settings
 title: Enenamah David - Software Engineer
-email: denenama@gmail.com
-description: >- # this means to ignore newlines until next property
-  Software Engineer with 3 years of experience in developing robust, scalable web applications. 
-  Passionate about creating innovative solutions and continuous learning.
-baseurl: "" # the subpath of your site, e.g. /blog
-url: "https://franzego.github.io" # the base hostname & protocol for your site
-github_username: franzego
-linkedin_username: davidenenamah@gmail.com
+email: denenama@example.com
+description: Linux infrastructure specialist | Virtualization Expert | Cloud Solutions
 
 # Build settings
-theme: jekyll-theme-minimal # You can change this to other GitHub Pages supported themes
+theme: jekyll-theme-minimal
 plugins:
   - jekyll-seo-tag
-  - jekyll-sitemap
 
+# Basic profile
+author:
+  name: Enenamah David
+  bio: Software Engineer specializing in Linux and cloud infrastructure
+
+# Social links
+github_username: franzego
+linkedin_username: franzego
+
+# Minimal configuration details
+contact:
+  email: your.email@example.com
+  location: City, Country
+
+# Exclude standard files
+exclude:
+  - Gemfile
+  - Gemfile.lock
+  - node_modules
