@@ -1,4 +1,26 @@
-baseURL = 'https://example.org/'
+baseURL = 'https://franzego.github.io/'
 locale = 'en-us'
-title = 'My New Hugo Project'
+title = 'Welcome To My Vault'
 theme = 'PaperMod'
+
+[outputs]
+  home = ["HTML", "RSS", "JSON"]
+
+# Adds the Search link to your top navigation
+[[menu.main]]
+  identifier = "search"
+  name = "Search"
+  url = "/search/"
+  weight = 10
+
+# Configures the Go-based syntax highlighter (Chroma)
+[markup]
+  [markup.highlight]
+    codeFences = true
+    guessSyntax = false
+    lineNoStart = 1
+    lineNos = true
+    lineNumbersInTable = true
+    noClasses = true
+    style = "dracula"
+    tabWidth = 4
