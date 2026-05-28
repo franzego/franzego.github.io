@@ -18,23 +18,28 @@ defaults:
   run:
     shell: bash
 
+env:
+  # This silences the Node 20 warning by forcing Node 24
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
 jobs:
   build:
     runs-on: ubuntu-latest
-    env:
-      HUGO_VERSION: 0.120.0
     steps:
       - name: Checkout
         uses: actions/checkout@v4
         with:
-          submodules: recursive
+          submodules: recursive 
+
       - name: Setup Hugo
-        uses: peaceiris/actions-hugo@v2
+        uses: peaceiris/actions-hugo@v3 # Updated to v3
         with:
-          hugo-version: 'latest'
+          hugo-version: 'latest'        # Dynamically pulls the latest version
           extended: true
+
       - name: Build with Hugo
         run: hugo --minify
+
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
