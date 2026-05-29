@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="en" dir="auto" data-theme="auto">
+
+<head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script><meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<meta name="robots" content="noindex, nofollow">
+<title>Log Structured Merge Trees | Franz</title>
+<meta name="keywords" content="">
+<meta name="description" content="Building an LSM Tree in Go: Understanding the Moving Parts
+
+Log-Structured Merge (LSM) Trees have become ubiquitous in today&rsquo;s database world. The name has become almost synonymous with modern storage engines. LSM trees sit behind databases like Cassandra, CockroachDB, RocksDB, LevelDB, and Pebble.
+One thing these systems have in common is their use in write-heavy workloads. The goal of an LSM is to ingest writes at a large scale, as quickly as possible. It sacrifices some read speed for this, because nothing is ever free. Even then, some optimizations can make that tradeoff manageable.">
+<meta name="author" content="">
+<link rel="canonical" href="http://localhost:1313/posts/log-structured-merge-trees/">
+<link crossorigin="anonymous" href="/assets/css/stylesheet.cd9298b33628769aa1bc1acebbbfd7aa11ce81dfe03484d479e1907760249a1d.css" integrity="sha256-zZKYszYodpqhvBrOu7/XqhHOgd/gNITUeeGQd2Akmh0=" rel="preload stylesheet" as="style">
+<link rel="icon" href="http://localhost:1313/favicon.ico">
+<link rel="icon" type="image/png" sizes="16x16" href="http://localhost:1313/favicon-16x16.png">
+<link rel="icon" type="image/png" sizes="32x32" href="http://localhost:1313/favicon-32x32.png">
+<link rel="apple-touch-icon" href="http://localhost:1313/apple-touch-icon.png">
+<link rel="mask-icon" href="http://localhost:1313/safari-pinned-tab.svg">
+<meta name="theme-color" content="#2e2e33">
+<meta name="msapplication-TileColor" content="#2e2e33">
+<link rel="alternate" hreflang="en" href="http://localhost:1313/posts/log-structured-merge-trees/">
+<noscript>
+    <style>
+        #theme-toggle,
+        .top-link {
+            display: none;
+        }
+
+    </style>
+    <style>
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --theme: rgb(29, 30, 32);
+                --entry: rgb(46, 46, 51);
+                --primary: rgb(218, 218, 219);
+                --secondary: rgb(155, 156, 157);
+                --tertiary: rgb(65, 66, 68);
+                --content: rgb(196, 196, 197);
+                --code-block-bg: rgb(46, 46, 51);
+                --code-bg: rgb(55, 56, 62);
+                --border: rgb(51, 51, 51);
+                color-scheme: dark;
+            }
+
+            .list {
+                background: var(--theme);
+            }
+
+            .toc {
+                background: var(--entry);
+            }
+        }
+
+    </style>
+</noscript>
+<script>
+    if (localStorage.getItem("pref-theme") === "dark") {
+        document.querySelector("html").dataset.theme = 'dark';
+    } else if (localStorage.getItem("pref-theme") === "light") {
+       document.querySelector("html").dataset.theme = 'light';
+    } else if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        document.querySelector("html").dataset.theme = 'dark';
+    } else {
+        document.querySelector("html").dataset.theme = 'light';
+    }
+
+</script>
+</head>
+<body id="top">
+    <header class="header">
+    <nav class="header-nav">
+        <div class="logo">
+            <a href="http://localhost:1313/" accesskey="h" title="Franz (Alt + H)">Franz</a>
+            <div class="logo-switches">
+                <button id="theme-toggle" class="theme-toggle" accesskey="t" title="(Alt + T)" aria-label="Toggle theme">
+                    <svg class="moon" xmlns="http://www.w3.org/2000/svg" width="17" height="17" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                    </svg>
+                    <svg class="sun" xmlns="http://www.w3.org/2000/svg" width="17" height="17" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="5"></circle>
+                        <line x1="12" y1="1" x2="12" y2="3"></line>
+                        <line x1="12" y1="21" x2="12" y2="23"></line>
+                        <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+                        <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+                        <line x1="1" y1="12" x2="3" y2="12"></line>
+                        <line x1="21" y1="12" x2="23" y2="12"></line>
+                        <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+                        <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+                    </svg>
+                </button>
+            </div>
+        </div>
+        <ul id="menu" class="menu">
+            <li>
+                <a href="http://localhost:1313/search/" title="Search (Alt &#43; /)" accesskey=/>
+                    <span>Search</span>
+                </a>
+            </li>
+        </ul>
+    </nav>
+</header>
+<main class="main">
+
+<article class="post-single">
+  <header class="post-header">
+    
+    <h1 class="post-title entry-hint-parent">
+      Log Structured Merge Trees
+      <span class="entry-hint" title="Draft">
+        <svg xmlns="http://www.w3.org/2000/svg" height="35" viewBox="0 -960 960 960" fill="currentColor">
+          <path
+            d="M160-410v-60h300v60H160Zm0-165v-60h470v60H160Zm0-165v-60h470v60H160Zm360 580v-123l221-220q9-9 20-13t22-4q12 0 23 4.5t20 13.5l37 37q9 9 13 20t4 22q0 11-4.5 22.5T862.09-380L643-160H520Zm300-263-37-37 37 37ZM580-220h38l121-122-18-19-19-18-122 121v38Zm141-141-19-18 37 37-18-19Z" />
+        </svg>
+      </span>
+    </h1>
+    <div class="post-meta">
+
+<span title='2026-05-29 01:47:21 +0100 WAT'>May 29, 2026</span>
+
+</div>
+  </header> 
+  <div class="post-content md-content"><h1 id="building-an-lsm-tree-in-go-understanding-the-moving-parts">Building an LSM Tree in Go: Understanding the Moving Parts<a hidden class="anchor" aria-hidden="true" href="#building-an-lsm-tree-in-go-understanding-the-moving-parts">#</a></h1>
+<p><img alt="LSM Tree Simple Illustration" loading="lazy" src="/posts/log-structured-merge-trees/lsm_tree.png"></p>
+<p>Log-Structured Merge (LSM) Trees have become ubiquitous in today&rsquo;s database world. The name has become almost synonymous with modern storage engines. LSM trees sit behind databases like Cassandra, CockroachDB, RocksDB, LevelDB, and Pebble.</p>
+<p>One thing these systems have in common is their use in write-heavy workloads. The goal of an LSM is to ingest writes at a large scale, as quickly as possible. It sacrifices some read speed for this, because nothing is ever free. Even then, some optimizations can make that tradeoff manageable.</p>
+<p>To truly understand how this works, I decided to build lsmgo - a small LSM Tree prototype written in Go for learning systems programming. The goal wasn&rsquo;t to build the next RocksDB. The goal was to understand the moving parts that make an LSM-style storage engine work.</p>
+<p>In this post, I want to walk through the foundational building blocks I implemented: batch writes, the WAL (Write Ahead Log), the Memtable, and SSTable flushes. This is a dive into the internals of the data structures that power this technology.</p>
+<hr>
+<h2 id="1-batch-writes-the-cost-of-fsync">1. Batch Writes: The Cost of Fsync<a hidden class="anchor" aria-hidden="true" href="#1-batch-writes-the-cost-of-fsync">#</a></h2>
+<p>I consider batch writes to be one of the foundations of the entire system. A learning prototype doesn&rsquo;t <em>strictly</em> need batch writes, but I find them incredibly instructive because they clearly expose the limitation of the &ldquo;one-write&rdquo; approach.</p>
+<p>Imagine the naive path for a write:
+<code>one write = one WAL append + one memtable insert</code></p>
+<p>The problem is that each durable WAL append involves an <code>fsync</code>, and <code>fsync</code> is expensive. It forces the OS to flush its write buffers all the way to disk. On a typical NVMe drive, that might be around 100-200 microseconds per fsync. If you do that per key, your throughput ceiling becomes completely limited by the number of fsyncs you can perform, regardless of how fast everything else is.</p>
+<p>Batching changes the math entirely. You take 10, 100, or 1000 key-value pairs, write them all to the WAL in one sequential append, do one <code>fsync</code>, then apply all of them to the memtable. The fsync cost is now amortized across the entire batch.</p>
+<h2 id="2-the-write-path-and-the-wal">2. The Write Path and the WAL<a hidden class="anchor" aria-hidden="true" href="#2-the-write-path-and-the-wal">#</a></h2>
+<p>The Write Ahead Log (WAL) is the guard against data loss. It exists to ensure durability.</p>
+<p>When a batch comes in, the write goes through this order:</p>
+<div class="mermaid">
+  flowchart LR
+    A[Incoming Batch] -->|Append & Fsync| B[Write Ahead Log]
+    B -->|Apply| C[Active Memtable]
+    C -->|Threshold Reached?| D[Rotate Memtable]
+</div>
+<script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
+<script>
+  mermaid.initialize({ startOnLoad: true, theme: 'dark' });
+</script>
+<p>Before data goes into the memtable (the primary write location in memory), it <em>first</em> has to be persisted in the WAL. It may feel counter-intuitive to write to a slow disk before writing to fast DRAM. But this disk write is strictly sequential. The file grows at the end, streaming bytes forward. No random jumping around. This makes the write pattern much friendlier to disk.</p>
+<p>If the server crashes just before adding the data to the memtable, the state can be recovered by replaying the WAL. It&rsquo;s a safety net that prevents the ambiguity of an interrupted write.</p>
+<h2 id="3-the-memtable-memory-vs-disk-tradeoffs">3. The Memtable: Memory vs. Disk Tradeoffs<a hidden class="anchor" aria-hidden="true" href="#3-the-memtable-memory-vs-disk-tradeoffs">#</a></h2>
+<p>The memtable is what makes writes (and some reads) quick. It&rsquo;s a data structure held in memory that temporarily holds recent writes before flushing them to SSTables.</p>
+<p>In <code>lsmgo</code>, I used a <strong>skip list</strong> as the underlying data structure.</p>
+<p>Why not a map? Maps are strong for insertion and lookup, but they are unordered. When a memtable reaches its threshold and needs to be written to an SSTable on disk, the database needs sorted iteration over all keys. A hash map can&rsquo;t give you that without a full <code>O(n log n)</code> sort at flush time. The skip list maintains sorted order continuously as inserts happen, so flushing is just a linear scan.</p>
+<p>LSMs do not do in-place updates. An update is just a newer write for the same key. A delete is a special tombstone marker, not an immediate removal. Newer writes simply shadow older writes.</p>
+<p>Because of this shadowing, read operations must respect a strict sequence, starting from the newest data:</p>
+<div class="mermaid">
+  flowchart TD
+    A[Read Request] --> B[Active Memtable]
+    B -- Not Found --> C[Immutable Memtables]
+    C -- Not Found --> D[SSTables Newest to Oldest]
+    D -- Not Found --> E[Key Does Not Exist]
+</div>
+<script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
+<script>
+  mermaid.initialize({ startOnLoad: true, theme: 'dark' });
+</script>
+<p>The core LSM tradeoff is this: <strong>accept pointer indirection in memory so disk writes can be sequential.</strong></p>
+<h2 id="4-sstables--the-magic-number">4. SSTables &amp; The Magic Number<a hidden class="anchor" aria-hidden="true" href="#4-sstables--the-magic-number">#</a></h2>
+<p>When a memtable reaches its threshold, it&rsquo;s retired into an immutable queue. Eventually, it&rsquo;s flushed to disk as an <strong>SSTable</strong> (Sorted String Table).</p>
+<p>Unlike the memtable, the SSTable is a durable file. This implementation writes a simple layout:
+<code>[records][bloom filter][footer]</code></p>
+<p>One important lesson here was the use of a <strong>magic number</strong> in the footer. A database file is just bytes. Without a recognizable structure, we don&rsquo;t know if the file is complete, corrupt, or even the right type of file. The magic number validates the file format. If the expected signature is missing, it&rsquo;s safe to treat the file as invalid.</p>
+<p>To optimize reads, we use <strong>Bloom filters</strong> per SSTable. Since reading from disk is expensive, the Bloom filter acts as a fast probabilistic check. It might give false positives, but it never gives false negatives. If the Bloom filter says a key isn&rsquo;t there, we don&rsquo;t have to scan the file. That is a small price to pay for reducing unnecessary disk scans.</p>
+<h2 id="5-the-manifest">5. The Manifest<a hidden class="anchor" aria-hidden="true" href="#5-the-manifest">#</a></h2>
+<p>Finally, the manifest is the durable list of SSTables that belong to the DB.</p>
+<p>At first, it feels like writing an SSTable file should be enough. If <code>000001.sst</code> exists on disk, why does the DB need anything else?</p>
+<p>The OS directory can contain many files—some may be old, temporary, corrupt, or unrelated. The DB cannot just trust every file it sees. It needs a durable catalog. That catalog is the manifest.</p>
+<p>For now, I kept the manifest deliberately simple and text-based:</p>
+<div class="highlight"><div style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;">
+<table style="border-spacing:0;padding:0;margin:0;border:0;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>add 1 /tmp/db/sst/000001.sst
+</span></span><span style="display:flex;"><span>next 2
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>On startup, the DB replays the manifest to rebuild its in-memory SSTable list.</p>
+<h2 id="why-compaction-is-not-here-yet">Why Compaction Is Not Here Yet<a hidden class="anchor" aria-hidden="true" href="#why-compaction-is-not-here-yet">#</a></h2>
+<p>You might notice something missing: Compaction.</p>
+<p>Compaction needs a durable way to say: &ldquo;Remove old SSTables A &amp; B, and add new compacted SSTable C.&rdquo; That means compaction entirely depends on having a robust manifest. For this milestone, I stopped after building the manifest foundation. A future compaction milestone will add the <code>remove</code> or <code>replace</code> manifest records.</p>
+<h2 id="final-thoughts">Final Thoughts<a hidden class="anchor" aria-hidden="true" href="#final-thoughts">#</a></h2>
+<p>Building <code>lsmgo</code> has been an incredible exercise in systems programming. It’s one thing to read about how RocksDB or LevelDB works, but implementing the sequence numbers, tombstones, WAL framing, and skip list rotations really cements the concepts.</p>
+<p>If you are interested in storage engines, I highly recommend building your own toy version. The tradeoff decisions you make will teach you more than any whitepaper could. The full breakdown of the project is available here: <a href="https://github.com/franzego/lsmgo">github</a>. Contibutions and suggestions are welcome.</p>
+<p>GodSpeed, Franz</p>
+
+
+  </div>
+
+  <footer class="post-footer">
+    <ul class="post-tags">
+    </ul>
+  </footer>
+</article>
+    </main>
+    
+<footer class="footer">
+        <span>&copy; 2026 <a href="http://localhost:1313/">Franz</a></span> · 
+
+    
+    
+    <span>
+        Powered by
+        <a href="https://gohugo.io/?utm_source=papermod" rel="noopener" target="_blank">Hugo</a> &
+        <a href="https://github.com/adityatelange/hugo-PaperMod/" rel="noopener" target="_blank">PaperMod</a>
+    </span>
+</footer>
+<a href="#top" id="top-link" class="top-link hidden" aria-label="go to top" title="Go to Top (Alt + G)" accesskey="g">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+        stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevrons-up">
+        <polyline points="17 11 12 6 7 11"></polyline>
+        <polyline points="17 18 12 13 7 18"></polyline>
+    </svg>
+</a>
+
+<script>
+    let menu = document.getElementById('menu');
+    if (menu) {
+        
+        const scrollPosition = localStorage.getItem("menu-scroll-position");
+        if (scrollPosition) {
+            menu.scrollLeft = parseInt(scrollPosition, 10);
+        }
+        
+        menu.onscroll = function () {
+            localStorage.setItem("menu-scroll-position", menu.scrollLeft);
+        }
+    }
+
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener("click", function (e) {
+            e.preventDefault();
+            var id = this.getAttribute("href").substr(1);
+            if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+                document.querySelector(`[id='${decodeURIComponent(id)}']`).scrollIntoView({
+                    behavior: "smooth"
+                });
+            } else {
+                document.querySelector(`[id='${decodeURIComponent(id)}']`).scrollIntoView();
+            }
+            if (id === "top") {
+                history.replaceState(null, null, " ");
+            } else {
+                history.pushState(null, null, `#${id}`);
+            }
+        });
+    });
+
+</script>
+<script>
+    var toplink = document.getElementById("top-link");
+    window.onscroll = function () {
+        const scrollThreshold = window.innerHeight;
+        if (document.body.scrollTop > scrollThreshold || document.documentElement.scrollTop > scrollThreshold) {
+            toplink.classList.remove("hidden");
+        } else {
+            toplink.classList.add("hidden");
+        }
+    };
+
+</script>
+<script>
+    document.getElementById("theme-toggle").addEventListener("click", () => {
+        const html = document.querySelector("html");
+        if (html.dataset.theme === "dark") {
+            html.dataset.theme = 'light';
+            localStorage.setItem("pref-theme", 'light');
+        } else {
+            html.dataset.theme = 'dark';
+            localStorage.setItem("pref-theme", 'dark');
+        }
+    })
+
+</script>
+</body>
+
+</html>

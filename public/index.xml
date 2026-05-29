@@ -6,8 +6,18 @@
     <description>Recent content on Franz</description>
     <generator>Hugo</generator>
     <language>en-us</language>
-    <lastBuildDate>Thu, 28 May 2026 00:00:00 +0000</lastBuildDate>
+    <lastBuildDate>Fri, 29 May 2026 01:47:21 +0100</lastBuildDate>
     <atom:link href="http://localhost:1313/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Log Structured Merge Trees</title>
+      <link>http://localhost:1313/posts/log-structured-merge-trees/</link>
+      <pubDate>Fri, 29 May 2026 01:47:21 +0100</pubDate>
+      <guid>http://localhost:1313/posts/log-structured-merge-trees/</guid>
+      <description>&lt;h1 id=&#34;building-an-lsm-tree-in-go-understanding-the-moving-parts&#34;&gt;Building an LSM Tree in Go: Understanding the Moving Parts&lt;/h1&gt;
+&lt;p&gt;&lt;img alt=&#34;LSM Tree Simple Illustration&#34; loading=&#34;lazy&#34; src=&#34;http://localhost:1313/posts/log-structured-merge-trees/lsm_tree.png&#34;&gt;&lt;/p&gt;
+&lt;p&gt;Log-Structured Merge (LSM) Trees have become ubiquitous in today&amp;rsquo;s database world. The name has become almost synonymous with modern storage engines. LSM trees sit behind databases like Cassandra, CockroachDB, RocksDB, LevelDB, and Pebble.&lt;/p&gt;
+&lt;p&gt;One thing these systems have in common is their use in write-heavy workloads. The goal of an LSM is to ingest writes at a large scale, as quickly as possible. It sacrifices some read speed for this, because nothing is ever free. Even then, some optimizations can make that tradeoff manageable.&lt;/p&gt;</description>
+    </item>
     <item>
       <title>Hello, World: Building a Go-Powered Blog from Scratch</title>
       <link>http://localhost:1313/posts/hugo-project-setup/</link>

@@ -13,10 +13,7 @@
       <link>http://localhost:1313/posts/hugo-project-setup/</link>
       <pubDate>Thu, 28 May 2026 00:00:00 +0000</pubDate>
       <guid>http://localhost:1313/posts/hugo-project-setup/</guid>
-      <description>&lt;p&gt;Trying to set up a personal blog is not quite straightforward. There was no one stop guide for setting up one using github pages.
-After solving the issue, i decided to document the steps i followed for my future self and anyone who ends up in the same position as I was.&lt;/p&gt;
-&lt;h2 id=&#34;hugo&#34;&gt;Hugo&lt;/h2&gt;
-&lt;p&gt;Written in Go, Hugo treats content like source code. It takes Markdown, runs it through Go&amp;rsquo;s html/template engine, and spits out a static site in milliseconds.&lt;/p&gt;</description>
+      <description>&lt;p&gt;Trying to set up a personal blog is not quite as straightforward. There was no one stop guide for setting up one using github pages. I had to google a lot, make mistakes and grill gemini for answers. It was not so technical or difficult but after solving the issue, I decided to document the steps i followed for my future self and anyone who ends up in the same position as I was.&lt;/p&gt;</description>
     </item>
   </channel>
 </rss>

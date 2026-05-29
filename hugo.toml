@@ -6,6 +6,10 @@ theme = 'PaperMod'
 [outputs]
   home = ["HTML", "RSS", "JSON"]
 
+[params]
+  # Other params...
+  enableMermaid = true
+
 [params.homeInfoParams]
   Title = "Welcome to My Vault" # Unicode emojis work perfectly here \U0001F4BB
   Content = """
@@ -48,3 +52,4 @@ theme = 'PaperMod'
     noClasses = true
     style = "dracula"
     tabWidth = 4
+

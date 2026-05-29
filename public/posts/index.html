@@ -113,32 +113,39 @@
 
 <article class="post-entry"> 
   <header class="entry-header">
+    <h2 class="entry-hint-parent">Log Structured Merge Trees
+      <span class="entry-hint" title="Draft">
+        <svg xmlns="http://www.w3.org/2000/svg" height="20" viewBox="0 -960 960 960" fill="currentColor">
+          <path
+            d="M160-410v-60h300v60H160Zm0-165v-60h470v60H160Zm0-165v-60h470v60H160Zm360 580v-123l221-220q9-9 20-13t22-4q12 0 23 4.5t20 13.5l37 37q9 9 13 20t4 22q0 11-4.5 22.5T862.09-380L643-160H520Zm300-263-37-37 37 37ZM580-220h38l121-122-18-19-19-18-122 121v38Zm141-141-19-18 37 37-18-19Z" />
+        </svg>
+      </span>
+    </h2>
+  </header>
+  <div class="entry-content">
+    <p>Building an LSM Tree in Go: Understanding the Moving Parts Log-Structured Merge (LSM) Trees have become ubiquitous in today’s database world. The name has become almost synonymous with modern storage engines. LSM trees sit behind databases like Cassandra, CockroachDB, RocksDB, LevelDB, and Pebble.
+One thing these systems have in common is their use in write-heavy workloads. The goal of an LSM is to ingest writes at a large scale, as quickly as possible. It sacrifices some read speed for this, because nothing is ever free. Even then, some optimizations can make that tradeoff manageable.
+...</p>
+  </div>
+  <footer class="entry-footer">
+
+<span title='2026-05-29 01:47:21 +0100 WAT'>May 29, 2026</span></footer>
+  <a class="entry-link" aria-label="post link to Log Structured Merge Trees" href="http://localhost:1313/posts/log-structured-merge-trees/"></a>
+</article>
+
+<article class="post-entry"> 
+  <header class="entry-header">
     <h2 class="entry-hint-parent">Hello, World: Building a Go-Powered Blog from Scratch
     </h2>
   </header>
   <div class="entry-content">
-    <p>Trying to set up a personal blog is not quite straightforward. There was no one stop guide for setting up one using github pages. After solving the issue, i decided to document the steps i followed for my future self and anyone who ends up in the same position as I was.
-Hugo Written in Go, Hugo treats content like source code. It takes Markdown, runs it through Go’s html/template engine, and spits out a static site in milliseconds.
+    <p>Trying to set up a personal blog is not quite as straightforward. There was no one stop guide for setting up one using github pages. I had to google a lot, make mistakes and grill gemini for answers. It was not so technical or difficult but after solving the issue, I decided to document the steps i followed for my future self and anyone who ends up in the same position as I was.
 ...</p>
   </div>
   <footer class="entry-footer">
 
 <span title='2026-05-28 00:00:00 +0000 UTC'>May 28, 2026</span></footer>
   <a class="entry-link" aria-label="post link to Hello, World: Building a Go-Powered Blog from Scratch" href="http://localhost:1313/posts/hugo-project-setup/"></a>
-</article>
-
-<article class="post-entry"> 
-  <header class="entry-header">
-    <h2 class="entry-hint-parent">Welcome To My Vault
-    </h2>
-  </header>
-  <div class="entry-content">
-    <p></p>
-  </div>
-  <footer class="entry-footer">
-
-</footer>
-  <a class="entry-link" aria-label="post link to Welcome To My Vault" href="http://localhost:1313/posts/hello-world/"></a>
 </article>
     </main>
     
