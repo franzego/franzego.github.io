@@ -1,10 +1,34 @@
 baseURL = 'https://franzego.github.io/'
 locale = 'en-us'
-title = 'Welcome To My Vault'
+title = 'Franz'
 theme = 'PaperMod'
 
 [outputs]
   home = ["HTML", "RSS", "JSON"]
+
+[params.homeInfoParams]
+  Title = "Welcome to My Vault" # Unicode emojis work perfectly here \U0001F4BB
+  Content = """
+  I am Franz. I build interesting stuff and document it as long as it interests me. From network programming, backend and distributed systems to systems programming, research papers, blogs, newsletters, findings and general observations.
+  
+  This is where I document my explorations in Go, C++, Rust, Python, Databases, Distributed architecture, and occasionally, Literature. Hope you learn a thing or two.
+  """
+
+[[params.socialIcons]]
+  name = "github"
+  url = "https://github.com/franzego"
+
+[[params.socialIcons]]
+  name = "linkedin"
+  url = "https://www.linkedin.com/in/david-enenamah-9217aa324/"
+
+[[params.socialIcons]]
+  name = "twitter"
+  url = "https://x.com/friendoffranz"
+
+[[params.socialIcons]]
+  name = "email"
+  url = "davidenenama@gmail.com"
 
 # Adds the Search link to your top navigation
 [[menu.main]]

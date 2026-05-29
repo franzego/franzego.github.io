@@ -5,8 +5,7 @@ draft: false
 tags: ["golang", "infrastructure", "hugo", "ci-cd"]
 ---
 
-Trying to set up a personal blog is not quite straightforward. There was no one stop guide for setting up one using github pages. 
-After solving the issue, i decided to document the steps i followed for my future self and anyone who ends up in the same position as I was.
+Trying to set up a personal blog is not quite as straightforward. There was no one stop guide for setting up one using github pages. I had to google a lot, make mistakes and grill gemini for answers. It was not so technical or difficult but after solving the issue, I decided to document the steps i followed for my future self and anyone who ends up in the same position as I was.
 
 ## Hugo
 Written in Go, Hugo treats content like source code. It takes Markdown, runs it through Go's html/template engine, and spits out a static site in milliseconds.
@@ -20,7 +19,8 @@ Instead of relying on the package manager, I pulled the standalone binary direct
 
 ```bash
 # Pull the archive
-wget https://github.com/gohugoio/hugo/releases/download/v0.162.1/hugo_0.162.1_linux-amd64.tar.gz (the specific version may have changed at the time of your usage).
+wget https://github.com/gohugoio/hugo/releases/download/v0.162.1/hugo_0.162.1_linux-amd64.tar.gz 
+# the specific version may have changed at the time of your usage.
 
 # Extract
 tar -zxvf hugo_0.162.1_linux-amd64.tar.gz
@@ -35,10 +35,10 @@ rm hugo_0.162.1_linux-amd64.tar.gz README.md LICENSE
 hugo version
 
 ```
-Hopefully the commands above went without any hitch. On to the next
+Hopefully the commands above went without any hitch. On to the next step.
 
 ### Scaffolding the System
-With the Go binary in my path, initializing the architecture is trivial. 
+With the Hugo binary in my path, initializing the architecture is trivial. 
 
 ```bash
 hugo new site your-blog
@@ -85,4 +85,6 @@ draft: false
 ```
 Once the parser had the correct characters, the pipeline turned green. The site was live and active.
 
-Setting this up feels much like writing a good Go program: strict, explicit, and highly performant. The infrastructure is now invisible, leaving me with nothing to do but write.
+Setting this up feels much like writing a good programs: strict, explicit, and highly performant. The infrastructure is now invisible, leaving me with nothing to do but write. 
+
+Godspeed, Franz
